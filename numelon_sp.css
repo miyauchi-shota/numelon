@@ -1,0 +1,18 @@
+.rule{
+	width:940px;
+	border:5px dashed #ffbb00;
+	padding:16px;
+}
+
+.box{
+	overflow:hidden;
+}
+
+.minibox{
+	float:left;
+	margin:10px;
+}
+
+.hide{
+	display: none;
+}

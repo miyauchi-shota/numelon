@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>ヌメロン</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="numelon_sp.css" type="text/css">
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	</head>
+    
+	<body>
+		<div id="app">
+			<h1>ヌメロン</h1>
+			<p class="rule" style="line-height:25px">
+				ルール<br>
+				・0-9までの数字を使って、ランダムに4桁の番号が作成すされる。<br>
+				・カードに重複は無いので「5502」「3771」といった同じ数字を2つ以上使用した番号は作れない。<br>
+				・プレイヤーは番号を推理してコールする。<br>
+				・コールされた番号と作成された番号を見比べ、コールされた番号がどの程度合っているかが発表される。<br>
+				・数字と桁が合っていた場合はイート、数字は合っているが桁は合っていない場合はバイトとなる。<br>
+				・作成された番号が「7651」でありコールされた番号が「7462」であった場合は、
+				イートが1つ・バイトが1つなので、「1イート　1バイト」となる。<br>
+				・桁数が増えても、基本的なルールは変わらない。
+			</p>
+			<div class="box">
+				<div class="minibox hide"  style="line-height:25px">
+					<input type="button">3桁の数字に挑戦</input>
+					<input type="button">4桁の数字に挑戦</input>
+					<input type="button">5桁の数字に挑戦</input>
+					<input type="button">6桁の数字に挑戦</input>
+					<input type="button">7桁の数字に挑戦</input>
+					<input type="button">8桁の数字に挑戦</input>
+					<input type="button">9桁の数字に挑戦</input>
+				</div>
+				<div class="minibox">
+					<div>
+						<input type="text" v-model="number" id="number" >
+						<input type="button" value="コール" v-on:click="checkNum()">
+						<input type="checkbox" v-model="checked" name="lose" id="giveup" >
+						<label for="giveup">
+							降参する。
+						</label>
+						<input type="button" v-bind:class="{hide: restartHide,}" value="再挑戦" v-on:click="createAnswer()">
+					</div>
+					<div id="message">{{message}}</div>
+					<div id="ansMessage"  v-for="msg in msgs" :key="msg"> {{ msg }}</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const app = {
+				el: "#app",
+				data() {
+					return{
+						count: 0,//カウンター；数字を入力した回数
+						figure: 0,//現在挑戦している数字の桁数
+						msgs: [],//最後にhtmlで出力するメッセージ;1つの文を1つの要素に入れる
+						ans: [],//正解の数字;1つの数字を１つの要素入れた配列
+						num: [],//入力された数字をひとつずつ配列にしたもの
+						number: "",// 入力した値
+						message: "",
+						checked: false,//降参のチェックボックス
+						restartHide: true,//再挑戦ボタンの非表示
+					}
+				},
+				created(){
+					this.getFigure(),
+					this.createAnswer();
+				},
+				methods: {
+					//挑戦する桁数の取得
+					getFigure(){
+						//後々GETで取得する
+						this.figure=4;
+					},
+		
+					//初期化
+					clear(){
+						this.msgs = [];
+						this.count= 0;
+						this.restartHide=true;
+						this.number = "";
+						this.checked=false;
+					},
+
+					//答えの数字を作成
+					 createAnswer(){
+						this.clear();
+						var arr = [0,1,2,3,4,5,6,7,8,9];
+						var a = arr.length;
+		
+						//シャッフルアルゴリズム
+						while (a) {
+							var j = Math.floor( Math.random() * a );
+							var t = arr[--a];
+							arr[a] = arr[j];
+							arr[j] = t;
+						}
+		
+						//シャッフルされた配列の要素を先頭から取り出す
+						this.ans = arr.slice(0, this.figure)
+					},
+		
+					//入力値チェック
+					checkNum(){
+						//降参するのチェックがある場合
+						if(this.checked){
+							this.retire();
+							return;
+						}
+
+						this.message ="";
+						if(!isNaN(this.number) && this.number.length == this.figure){
+							this.answerCheck();//数値だけなら答え合わせ
+						} else {
+							this.message ="0～9の中から" + this.figure + "つの数字を入力してください。"
+						}
+					},
+		
+					//答え合わせ
+					answerCheck(){
+						++this.count;
+						var eat = 0;
+						var bite = 0;
+						//num = parseInt(check).split("");
+						var num = this.number.split("").map(function(value){
+							return  parseInt(value)}
+							);
+						for(var let = 0; let < this.figure; ++let){
+							if(this.ans[let]==num[let]){
+								++eat;
+							}
+						}
+		
+						switch(eat){
+							case this.figure://正解の場合
+								this.success();
+								break;
+							default://正解していない場合は、バイトの数を計測
+								this.failure(num,eat,bite);
+								break;
+						}
+					},
+					
+					//正解したとき
+					success(){
+						//プリントする言葉を書き込む
+						this.msgs.push(this.number + "　" + this.count + "回目で正解です。\n");
+						this.restartHide = false;
+					},
+
+					//外れのとき
+					failure(num,eat,bite){
+						answer = this.ans
+						num.map(function(value){ 
+							if(answer.includes(value)){++bite;}
+						});
+						bite=bite-eat;
+						if(bite<0){
+							bite=0;
+						}
+								
+						//プリントする言葉を書き込む	
+						this.msgs.push(this.count + "回目　"+ this.number + "　" + eat + "イート　"+ bite + "バイト\n");
+					},
+
+					//降参したときの処理
+			 		retire(){
+						//正解とメッセージを表示
+						this.msgs.push("正解は、"+ this.ans.join("") +"です。");
+						this.msgs.push("次の挑戦をお待ちしております。");
+						this.msgs.push("再戦を望むならば0～9の中から" + this.figure + "つの数字を入力してください。");
+						this.restartHide = false;
+					}
+				}
+			};
+		Vue.createApp(app).mount('#app');
+		
+		
+		
+		
+		
+
+			
+		</script>
+  </body>
+</html>
+
