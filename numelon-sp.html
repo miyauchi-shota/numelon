@@ -10,7 +10,7 @@
 	<body>
 		<div id="app">
 			<h1>ヌメロン</h1>
-			<p class="rule" style="line-height:25px">
+			<div class="rule box-line-height">
 				ルール<br>
 				・0-9までの数字を使って、ランダムに4桁の番号が作成すされる。<br>
 				・カードに重複は無いので「5502」「3771」といった同じ数字を2つ以上使用した番号は作れない。<br>
@@ -19,17 +19,19 @@
 				・数字と桁が合っていた場合はイート、数字は合っているが桁は合っていない場合はバイトとなる。<br>
 				・作成された番号が「7651」でありコールされた番号が「7462」であった場合は、
 				イートが1つ・バイトが1つなので、「1イート　1バイト」となる。<br>
-				・桁数が増えても、基本的なルールは変わらない。
-			</p>
+				・桁数が増えても、基本的なルールは変わらない。<br>
+				・ソースコードは<a href="https://github.com/miyauchi-shota/numelon">こちら</a>になります。
+			</div>
+
 			<div class="box">
-				<div class="minibox hide"  style="line-height:25px">
-					<input type="button">3桁の数字に挑戦</input>
-					<input type="button">4桁の数字に挑戦</input>
-					<input type="button">5桁の数字に挑戦</input>
-					<input type="button">6桁の数字に挑戦</input>
-					<input type="button">7桁の数字に挑戦</input>
-					<input type="button">8桁の数字に挑戦</input>
-					<input type="button">9桁の数字に挑戦</input>
+				<div>
+					<input type="button" v-on:click="changeFiguer(3)" value="3桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(4)" value="4桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(5)" value="5桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(6)" value="6桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(7)" value="7桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(8)" value="8桁の数字に挑戦"></input><br>
+					<input type="button" v-on:click="changeFiguer(9)" value="9桁の数字に挑戦"></input><br>
 				</div>
 				<div class="minibox">
 					<div>
@@ -64,14 +66,13 @@
 					}
 				},
 				created(){
-					this.getFigure(),
+					this.getFigure(4),
 					this.createAnswer();
 				},
 				methods: {
 					//挑戦する桁数の取得
-					getFigure(){
-						//後々GETで取得する
-						this.figure=4;
+					getFigure(value){
+						this.figure=value;
 					},
 		
 					//初期化
@@ -171,6 +172,12 @@
 						this.msgs.push("次の挑戦をお待ちしております。");
 						this.msgs.push("再戦を望むならば0～9の中から" + this.figure + "つの数字を入力してください。");
 						this.restartHide = false;
+					},
+
+					//桁数を変更
+					changeFiguer(value){
+						this.getFigure(value);
+						this.createAnswer();
 					}
 				}
 			};

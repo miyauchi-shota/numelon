@@ -4,6 +4,10 @@
 	padding:16px;
 }
 
+.box-line-height{
+	line-height:25px;
+}
+
 .box{
 	overflow:hidden;
 }
